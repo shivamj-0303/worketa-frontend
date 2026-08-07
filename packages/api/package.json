@@ -1,0 +1,24 @@
+{
+  "name": "@worketa/api",
+  "version": "1.0.0",
+  "description": "Centralized API client for WORKETA",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "axios": "^1.6.5",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}
