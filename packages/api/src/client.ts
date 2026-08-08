@@ -42,7 +42,6 @@ export class ApiClient {
 
   constructor(config: ApiClientConfig) {
     this.config = {
-      baseURL: '/api',
       timeout: 30000,
       ...config,
     };

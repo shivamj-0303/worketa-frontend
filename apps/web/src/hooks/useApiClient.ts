@@ -20,7 +20,7 @@ export function useApiClient(): ApiClient {
 
   if (!globalApiClient) {
     globalApiClient = new ApiClient({
-      baseURL: '/api',
+      baseURL: import.meta.env.VITE_API_BASE_URL,
       timeout: 30000,
       getToken: () => localStorage.getItem('accessToken'),
       onTokenRefresh: async (newToken: string) => {
@@ -42,7 +42,7 @@ export function useApiClient(): ApiClient {
 export function getApiClient(): ApiClient {
   if (!globalApiClient) {
     globalApiClient = new ApiClient({
-      baseURL: '/api',
+      baseURL: import.meta.env.VITE_API_BASE_URL,
       timeout: 30000,
       // Read access token for API requests
       getToken: () => localStorage.getItem('accessToken'),
