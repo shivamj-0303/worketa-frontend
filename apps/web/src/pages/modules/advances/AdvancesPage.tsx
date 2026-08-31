@@ -16,6 +16,7 @@ interface Advance {
   amount: number;
   advanceDate: string;
   settled: boolean;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
 }
 
 interface ApiListResponse {
@@ -99,6 +100,12 @@ export default function AdvancesPage() {
     },
   });
 
+  const updateStatus = useMutation({
+    mutationFn: ({ id, action }: { id: string; action: 'approve' | 'reject' }) =>
+      apiClient.post(`/v1/advances/${id}/${action}`, {}),
+    onSuccess: () => refetchAdvances(),
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.employeeId && formData.amount) {
@@ -173,12 +180,13 @@ export default function AdvancesPage() {
               <th>Amount</th>
               <th>Date</th>
               <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {advances.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
                   No advances.
                 </td>
               </tr>
@@ -191,13 +199,35 @@ export default function AdvancesPage() {
                   <td>
                     <span
                       className={`premium-badge ${
-                        a.settled
+                        a.status === 'APPROVED'
                           ? 'bg-success-50 text-success-700'
-                          : 'bg-warning-50 text-warning-700'
+                          : a.status === 'REJECTED'
+                            ? 'bg-danger-50 text-danger-700'
+                            : 'bg-warning-50 text-warning-700'
                       }`}
                     >
-                      {a.settled ? 'SETTLED' : 'PENDING'}
+                      {a.status || (a.settled ? 'APPROVED' : 'PENDING')}
                     </span>
+                  </td>
+                  <td>
+                    {(!a.status || a.status === 'PENDING') && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="success"
+                          onClick={() => updateStatus.mutate({ id: a.id, action: 'approve' })}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => updateStatus.mutate({ id: a.id, action: 'reject' })}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))

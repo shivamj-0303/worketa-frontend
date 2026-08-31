@@ -10,14 +10,6 @@
  * - useAuthGuard: Hook to ensure authentication
  * - useIsAdmin, useIsManager, useHasRole: Role checking helpers
  */
-export {
-  AuthProvider,
-  useAuth,
-  useAuthGuard,
-  withAuth,
-  useIsAdmin,
-  useIsManager,
-  useHasRole,
-} from './context';
+export { AuthProvider, useAuth, useAuthGuard, withAuth, useIsAdmin, useIsManager, useHasRole, } from './context';
 export type { AuthContextType } from './context';
 //# sourceMappingURL=index.d.ts.map

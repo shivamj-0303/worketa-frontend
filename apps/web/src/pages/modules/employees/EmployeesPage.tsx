@@ -30,6 +30,13 @@ interface ApiResponse<T> {
   message?: string;
 }
 
+interface EmployeeCreateData {
+  employee?: Employee;
+  generatedPassword?: string;
+}
+
+type EmployeeMutationResponse = ApiResponse<Employee> | ApiResponse<EmployeeCreateData>;
+
 type CalendarCell = {
   date: string | null;
   dayNumber: number | null;
@@ -72,6 +79,13 @@ function shiftMonth(date: Date, delta: number) {
   return next;
 }
 
+function generateTemporaryPassword() {
+  const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#*';
+  const values = new Uint32Array(10);
+  crypto.getRandomValues(values);
+  return Array.from(values, (value) => characters[value % characters.length]).join('');
+}
+
 function buildCalendarCells(
   month: Date,
   attendanceByDate: Record<string, AttendanceType>
@@ -107,11 +121,14 @@ export default function EmployeesPage() {
 
   const [formData, setFormData] = useState({
     fullName: '',
+    email: '',
+    password: generateTemporaryPassword(),
     phone: '',
     type: 'DRIVER' as 'DRIVER' | 'ASSISTANT',
     joiningDate: new Date().toISOString().split('T')[0],
     dailyWage: '',
   });
+  const [createdPassword, setCreatedPassword] = useState<string | null>(null);
 
   const {
     data: response,
@@ -138,20 +155,44 @@ export default function EmployeesPage() {
   const createMutation = useMutation({
     mutationFn: async (data: {
       fullName: string;
+      email: string;
+      password: string;
       phone: string;
       type: 'DRIVER' | 'ASSISTANT';
       joiningDate: string;
       dailyWage: number;
     }) => {
       if (isEditing && selectedEmployee) {
-        return apiClient.put(`/v1/employees/${selectedEmployee.id}`, data);
+        return apiClient.put<Employee>(`/v1/employees/${selectedEmployee.id}`, data);
       }
 
-      return apiClient.post('/v1/employees', data);
+      const response = await apiClient.post<EmployeeCreateData>('/v1/employees', data);
+      if (response.success === false) {
+        throw new Error(response.message || 'Unable to create employee');
+      }
+      return response;
     },
-    onSuccess: () => {
+    onSuccess: (response: EmployeeMutationResponse) => {
+      const generatedPassword =
+        response.success &&
+        response.data &&
+        'generatedPassword' in response.data &&
+        typeof response.data.generatedPassword === 'string'
+          ? response.data.generatedPassword
+          : null;
+
+      if (generatedPassword) {
+        alert(`Employee created successfully. First-time login password: ${generatedPassword}`);
+      } else {
+        alert('Employee created successfully.');
+      }
+
       refetch();
       resetForm();
+      setCreatedPassword(generatedPassword);
+    },
+    onError: (error: Error) => {
+      alert(error.message || 'Unable to create employee');
     },
   });
 
@@ -227,13 +268,19 @@ export default function EmployeesPage() {
   };
 
   const handleCreate = async () => {
-    if (!formData.fullName.trim() || !formData.phone.trim()) {
+    if (
+      !formData.fullName.trim() ||
+      !formData.phone.trim() ||
+      (!isEditing && !formData.email.trim())
+    ) {
       alert('Please fill in all required fields');
       return;
     }
 
     createMutation.mutate({
       fullName: formData.fullName,
+      email: formData.email,
+      password: formData.password,
       phone: formData.phone,
       type: formData.type,
       joiningDate: formData.joiningDate,
@@ -245,6 +292,8 @@ export default function EmployeesPage() {
     setSelectedEmployee(employee);
     setFormData({
       fullName: employee.fullName,
+      email: '',
+      password: '',
       phone: employee.phone,
       type: employee.type,
       joiningDate: employee.joiningDate,
@@ -263,11 +312,14 @@ export default function EmployeesPage() {
   const resetForm = () => {
     setFormData({
       fullName: '',
+      email: '',
+      password: generateTemporaryPassword(),
       phone: '',
       type: 'DRIVER',
       joiningDate: new Date().toISOString().split('T')[0],
       dailyWage: '',
     });
+    setCreatedPassword(null);
     setIsCreating(false);
     setIsEditing(false);
     setSelectedEmployee(null);
@@ -313,6 +365,35 @@ export default function EmployeesPage() {
             placeholder="John Doe"
             required
           />
+
+          <Input
+            label="Email"
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            placeholder="john@example.com"
+            required
+          />
+
+          {!isEditing && (
+            <div className="space-y-2">
+              <Input
+                label="First-login password"
+                type="text"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                helperText="Share this password with the employee. They can change it in the mobile app."
+                required
+              />
+              <button
+                type="button"
+                className="text-sm font-semibold text-primary-700 underline"
+                onClick={() => setFormData({ ...formData, password: generateTemporaryPassword() })}
+              >
+                Generate another password
+              </button>
+            </div>
+          )}
 
           <Input
             label="Phone"
@@ -367,6 +448,24 @@ export default function EmployeesPage() {
               Cancel
             </Button>
           </div>
+        </div>
+      )}
+
+      {createdPassword && (
+        <div className="premium-card border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+          <p className="font-semibold">
+            Employee created. Share these first-login credentials securely:
+          </p>
+          <p className="mt-2">
+            Temporary password: <span className="font-bold">{createdPassword}</span>
+          </p>
+          <button
+            type="button"
+            className="mt-3 text-xs font-semibold underline"
+            onClick={() => setCreatedPassword(null)}
+          >
+            Dismiss
+          </button>
         </div>
       )}
 

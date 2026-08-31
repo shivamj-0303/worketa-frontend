@@ -1,23 +1,23 @@
 import React, { ReactNode } from 'react';
 interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: 'ADMIN' | 'MANAGER' | 'DRIVER' | 'EMPLOYEE';
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: 'ADMIN' | 'MANAGER' | 'DRIVER' | 'EMPLOYEE';
 }
 export interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (user: User, token: string) => void;
-  logout: () => void;
-  setToken: (token: string) => void;
-  updateUser: (user: Partial<User>) => void;
+    user: User | null;
+    token: string | null;
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    login: (user: User, token: string) => void;
+    logout: () => void;
+    setToken: (token: string) => void;
+    updateUser: (user: Partial<User>) => void;
 }
 interface AuthProviderProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 /**
  * AuthProvider: Wraps your entire app to provide authentication context
@@ -32,9 +32,7 @@ interface AuthProviderProps {
  *   <App />
  * </AuthProvider>
  */
-export declare function AuthProvider({
-  children,
-}: AuthProviderProps): import('react/jsx-runtime').JSX.Element;
+export declare function AuthProvider({ children }: AuthProviderProps): import("react/jsx-runtime").JSX.Element;
 /**
  * useAuth: Hook to access authentication state and methods
  *
@@ -53,8 +51,8 @@ export declare function useAuth(): AuthContextType;
  * }
  */
 export declare function useAuthGuard(redirectTo?: string): {
-  isAuthenticated: boolean;
-  isLoading: boolean;
+    isAuthenticated: boolean;
+    isLoading: boolean;
 };
 /**
  * withAuth: HOC to wrap components that require authentication
@@ -62,10 +60,7 @@ export declare function useAuthGuard(redirectTo?: string): {
  * Usage:
  * export default withAuth(Dashboard, '/login');
  */
-export declare function withAuth<P extends object>(
-  Component: React.ComponentType<P>,
-  redirectTo?: string
-): (props: P) => import('react/jsx-runtime').JSX.Element | null;
+export declare function withAuth<P extends object>(Component: React.ComponentType<P>, redirectTo?: string): (props: P) => import("react/jsx-runtime").JSX.Element | null;
 /**
  * useIsAdmin: Check if user has admin role
  */

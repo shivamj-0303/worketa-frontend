@@ -8,7 +8,8 @@ const navItems = [
   { label: 'Employees', path: '/employees', icon: '👥' },
   { label: 'Vehicles', path: '/vehicles', icon: '🚗' },
   { label: 'Trips', path: '/trips', icon: '🛣️' },
-  { label: 'Attendance', path: '/attendance', icon: '📅' },
+  { label: 'Pending Approvals', path: '/attendance/pending', icon: '⏳' },
+  { label: 'Double Approvals', path: '/attendance/double-approvals', icon: '2x' },
   { label: 'Payroll', path: '/payroll', icon: '💰' },
   { label: 'History', path: '/history', icon: '🧾' },
   { label: 'Advances', path: '/advances', icon: '💳' },
@@ -25,7 +26,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row overflow-hidden bg-slate-950 text-slate-900 md:bg-transparent">
+    <div className="flex min-h-screen flex-col md:flex-row bg-slate-950 text-slate-900 md:bg-transparent">
       {/* Mobile Header */}
       <header className="md:hidden premium-surface sticky top-0 z-50 flex items-center justify-between px-4 py-4 text-slate-900">
         <div>
@@ -49,7 +50,7 @@ export default function DashboardLayout() {
       <aside
         className={`${
           sidebarOpen ? 'w-64' : 'w-20'
-        } hidden shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-slate-950/95 text-white shadow-2xl backdrop-blur-xl transition-all duration-300 md:flex md:sticky md:top-0 md:h-screen`}
+        } fixed inset-y-0 left-0 z-40 hidden shrink-0 flex-col overflow-hidden border-r border-white/10 bg-slate-950/95 text-white shadow-2xl backdrop-blur-xl transition-all duration-300 md:flex`}
       >
         {/* Logo (Desktop) */}
         <div className="flex items-center justify-between border-b border-white/10 p-5 shrink-0">
@@ -112,7 +113,9 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-[linear-gradient(180deg,#f8fbff_0%,#eef3f9_100%)]">
+      <div
+        className={`flex min-h-screen flex-1 flex-col bg-[linear-gradient(180deg,#f8fbff_0%,#eef3f9_100%)] ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}
+      >
         {/* Topbar */}
         <header className="hidden md:flex items-center justify-between shrink-0 border-b border-slate-200/80 bg-white/80 px-6 py-4 backdrop-blur-xl">
           <div>

@@ -10,6 +10,7 @@ import EmployeesPage from '@/pages/modules/employees/EmployeesPage';
 import VehiclesPage from '@/pages/modules/vehicles/VehiclesPage';
 import TripsPage from '@/pages/modules/trips/TripsPage';
 import AttendancePage from '@/pages/modules/attendance/AttendancePage';
+import PendingApprovalsPage from '@/pages/modules/attendance/PendingApprovalsPage';
 import PayrollPage from '@/pages/modules/payroll/PayrollPage';
 import HistoryPage from '@/pages/modules/history/HistoryPage';
 import AdvancesPage from '@/pages/modules/advances/AdvancesPage';
@@ -40,6 +41,8 @@ export default function App() {
         <Route path="vehicles" element={<VehiclesPage />} />
         <Route path="trips" element={<TripsPage />} />
         <Route path="attendance" element={<AttendancePage />} />
+        <Route path="attendance/pending" element={<PendingApprovalsPage />} />
+        <Route path="attendance/double-approvals" element={<PendingApprovalsPage doubleOnly />} />
         <Route path="payroll" element={<PayrollPage />} />
         <Route path="history" element={<HistoryPage />} />
         <Route path="advances" element={<AdvancesPage />} />
