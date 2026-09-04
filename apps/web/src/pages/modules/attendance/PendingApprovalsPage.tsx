@@ -21,6 +21,7 @@ export default function PendingApprovalsPage({ doubleOnly = false }: { doubleOnl
   const apiClient = useApiClient();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
+  const [selectedForApproval, setSelectedForApproval] = useState<Set<string>>(new Set());
 
   const { data, isLoading } = useQuery<ApiResponse<PendingAttendanceRecord[]>>({
     queryKey: ['pending-attendance'],
@@ -56,6 +57,11 @@ export default function PendingApprovalsPage({ doubleOnly = false }: { doubleOnl
       queryClient.invalidateQueries({ queryKey: ['pending-attendance'] });
     },
   });
+
+  const saveApprovals = async () => {
+    await Promise.all(Array.from(selectedForApproval).map((id) => approveMutation.mutateAsync(id)));
+    setSelectedForApproval(new Set());
+  };
 
   const rejectMutation = useMutation({
     mutationFn: (id: string) => apiClient.post(`/v1/attendance/${id}/reject`, {}),
@@ -138,10 +144,17 @@ export default function PendingApprovalsPage({ doubleOnly = false }: { doubleOnl
                       <Button
                         size="sm"
                         variant="success"
-                        onClick={() => approveMutation.mutate(record.id)}
+                        onClick={() =>
+                          setSelectedForApproval((current) => {
+                            const next = new Set(current);
+                            if (next.has(record.id)) next.delete(record.id);
+                            else next.add(record.id);
+                            return next;
+                          })
+                        }
                         disabled={approveMutation.isPending}
                       >
-                        Approve
+                        {selectedForApproval.has(record.id) ? 'Approved' : 'Approve'}
                       </Button>
                       <Button
                         size="sm"
@@ -160,6 +173,16 @@ export default function PendingApprovalsPage({ doubleOnly = false }: { doubleOnl
           </tbody>
         </table>
       </div>
+      {selectedForApproval.size > 0 && (
+        <div className="sticky bottom-4 flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-lg">
+          <span className="text-sm font-medium text-emerald-900">
+            {selectedForApproval.size} approval{selectedForApproval.size === 1 ? '' : 's'} selected
+          </span>
+          <Button variant="success" onClick={saveApprovals} disabled={approveMutation.isPending}>
+            {approveMutation.isPending ? 'Saving...' : 'Save approvals'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -54,13 +54,15 @@ export default function LoginPage() {
 
     try {
       // Call backend with proper API client (has token interceptors)
-      const response = await apiClient.post<{ accessToken: string; refreshToken: string }>(
-        '/v1/auth/login',
-        {
-          email: data.email,
-          password: data.password,
-        }
-      );
+      const response = await apiClient.post<{
+        accessToken: string;
+        refreshToken: string;
+        fullName?: string;
+        role?: string;
+      }>('/v1/auth/login', {
+        email: data.email,
+        password: data.password,
+      });
 
       // Check if response is success
       if (response.success) {
@@ -81,10 +83,10 @@ export default function LoginPage() {
         login(
           {
             id: 'authenticated-user',
-            firstName: 'User',
-            lastName: '',
+            firstName: response.data.fullName?.split(/\s+/)[0] || 'Owner',
+            lastName: response.data.fullName?.split(/\s+/).slice(1).join(' ') || '',
             email: data.email,
-            role: 'EMPLOYEE',
+            role: (response.data.role as 'ADMIN' | 'MANAGER' | 'DRIVER' | 'EMPLOYEE') || 'ADMIN',
           },
           accessToken
         );

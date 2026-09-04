@@ -128,10 +128,10 @@ export default function DashboardLayout() {
           </div>
           <div className="flex items-center gap-4 ml-4 min-w-0">
             <span className="truncate text-sm text-slate-600">
-              {user?.firstName} {user?.lastName}
+              {user?.firstName || 'Owner'} {user?.lastName}
             </span>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 to-secondary-600 text-xs font-bold text-white shadow-md">
-              {user?.firstName?.charAt(0)}
+              {(user?.firstName || 'O').charAt(0)}
               {user?.lastName?.charAt(0)}
             </div>
           </div>
