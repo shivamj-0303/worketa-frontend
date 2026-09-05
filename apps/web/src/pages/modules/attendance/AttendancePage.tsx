@@ -114,13 +114,7 @@ export default function AttendancePage() {
         wageForDay,
       };
 
-      const existing = attendanceMap[employeeId];
-
-      if (existing?.id) {
-        return apiClient.put(`/v1/attendance/${existing.id}`, payload);
-      }
-
-      return apiClient.post('/v1/attendance', payload);
+      return apiClient.post('/v1/attendance/admin', payload);
     },
     onSuccess: async () => {
       await refetchAttendance();
